@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Request details{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-8">
+  <div class="card shadow-sm"><div class="card-body p-4">
+    <h3>Request for <a href="{{ rental.property.get_absolute_url }}">{{ rental.property.title }}</a></h3>
+    <p>{% include 'rentals/_status_badge.html' with status=rental.status label=rental.get_status_display %}
+       <span class="text-muted small ms-2">Sent {{ rental.request_date|date:"d M Y, H:i" }}</span></p>
+    <p class="mb-1"><strong>Owner:</strong> {{ rental.property.owner.username }}</p>
+    <p class="mb-1"><strong>Location:</strong> {{ rental.property.location }}</p>
+    <p><strong>Rent:</strong> ৳{{ rental.property.monthly_rent }} / month</p>
+    <h6>Your message</h6>
+    <p class="border rounded p-3 bg-light">{{ rental.message|linebreaksbr }}</p>
+    {% if rental.is_pending %}
+      <form method="post" action="{% url 'rentals:cancel_request' rental.pk %}" class="d-inline" onsubmit="return confirm('Cancel this request?')">{% csrf_token %}
+        <button class="btn btn-outline-danger">Cancel request</button></form>
+    {% endif %}
+    {% if can_review %}<a href="{% url 'rentals:add_review' rental.property.pk %}" class="btn btn-warning">Leave a review</a>{% endif %}
+    <a href="{% url 'rentals:tenant_requests' %}" class="btn btn-light">Back</a>
+  </div></div>
+</div></div>
+{% endblock %}

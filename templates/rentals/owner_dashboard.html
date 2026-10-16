@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Owner dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Owner dashboard</h2>
+  <a href="{% url 'properties:create' %}" class="btn btn-primary">+ Add property</a>
+</div>
+{% include 'rentals/_stats.html' %}
+
+<div class="card shadow-sm mb-4"><div class="card-body">
+  <h5>My properties</h5>
+  <div class="table-responsive">
+  <table class="table align-middle">
+    <thead><tr><th>Title</th><th>Type</th><th>Location</th><th>Rent</th><th>Status</th><th>Pending</th><th></th></tr></thead>
+    <tbody>
+    {% for p in properties %}
+      <tr>
+        <td><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></td>
+        <td>{{ p.get_property_type_display }}</td>
+        <td>{{ p.location }}</td>
+        <td>৳{{ p.monthly_rent }}</td>
+        <td>{% if p.is_available %}<span class="badge bg-success">Available</span>{% else %}<span class="badge bg-secondary">Unavailable</span>{% endif %}</td>
+        <td>{{ p.pending_count }}</td>
+        <td class="text-end">
+          <a href="{% url 'properties:update' p.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+          <a href="{% url 'properties:delete' p.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+        </td>
+      </tr>
+    {% empty %}<tr><td colspan="7" class="text-muted">You haven't added any properties yet.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div></div>
+
+<div class="card shadow-sm"><div class="card-body">
+  <div class="d-flex justify-content-between"><h5>Recent requests</h5><a href="{% url 'rentals:owner_requests' %}">View all</a></div>
+  <ul class="list-group list-group-flush">
+    {% for r in recent_requests %}
+      <li class="list-group-item d-flex justify-content-between">
+        <span><strong>{{ r.tenant.username }}</strong> &rarr; {{ r.property.title }}</span>
+        {% include 'rentals/_status_badge.html' with status=r.status label=r.get_status_display %}
+      </li>
+    {% empty %}<li class="list-group-item text-muted">No requests yet.</li>{% endfor %}
+  </ul>
+</div></div>
+{% endblock %}

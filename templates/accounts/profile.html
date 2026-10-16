@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}My profile{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-7">
+  <div class="card shadow-sm"><div class="card-body p-4">
+    <div class="d-flex align-items-center mb-3">
+      {% if user.profile_image %}<img src="{{ user.profile_image.url }}" class="rounded-circle me-3" width="64" height="64" style="object-fit:cover">{% endif %}
+      <div><h3 class="mb-0">{{ user.username }}</h3><span class="badge bg-secondary">{{ user.get_role_display }}</span></div>
+    </div>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      {% include '_form_fields.html' %}
+      <button class="btn btn-primary">Save changes</button>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Rental requests{% endblock %}
+{% block content %}
+<h2 class="mb-3">Rental requests</h2>
+<div class="mb-3">
+  <a href="{% url 'rentals:owner_requests' %}" class="btn btn-sm {% if not status %}btn-dark{% else %}btn-outline-dark{% endif %}">All</a>
+  {% for value, label in statuses %}<a href="?status={{ value }}" class="btn btn-sm {% if status == value %}btn-dark{% else %}btn-outline-dark{% endif %}">{{ label }}</a>{% endfor %}
+</div>
+<div class="card shadow-sm"><div class="table-responsive">
+<table class="table align-middle mb-0">
+  <thead><tr><th>Property</th><th>Tenant</th><th>Message</th><th>Date</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for r in page_obj %}
+    <tr>
+      <td><a href="{{ r.property.get_absolute_url }}">{{ r.property.title }}</a></td>
+      <td>{{ r.tenant.username }}{% if r.tenant.phone %}<br><small class="text-muted">{{ r.tenant.phone }}</small>{% endif %}</td>
+      <td style="max-width:280px">{{ r.message|truncatechars:90 }}</td>
+      <td>{{ r.request_date|date:"d M Y" }}</td>
+      <td>{% include 'rentals/_status_badge.html' with status=r.status label=r.get_status_display %}</td>
+      <td class="text-end text-nowrap">
+        {% if r.is_pending %}
+        <form method="post" action="{% url 'rentals:accept_request' r.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-success btn-sm">Accept</button></form>
+        <form method="post" action="{% url 'rentals:reject_request' r.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-danger btn-sm">Reject</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}<tr><td colspan="6" class="text-muted">No requests found.</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% if page_obj.has_other_pages %}
+<div class="mt-3 d-flex gap-2 justify-content-center">
+  {% if page_obj.has_previous %}<a class="btn btn-outline-secondary btn-sm" href="?{% if status %}status={{ status }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}
+  <span class="align-self-center small">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a class="btn btn-outline-secondary btn-sm" href="?{% if status %}status={{ status }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}
